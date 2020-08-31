@@ -12,6 +12,7 @@ This plugin allows you the run the PHPUnit on a remote server tests using the Su
 - `Docker PHPUnit: Run unit tests`
 - `Docker PHPUnit: Run functional tests`
 - `Docker PHPUnit: Run tests in current file`
+- `Docker PHPUnit: Run tests in current file with Xdebug`
 
 ### Colouring output
 
@@ -32,7 +33,7 @@ Laravel 5.4 Test Example:
 
 ```json
 {
-	"phpunit_path": "/var/www/html/vendor/bin/phpunit", 
+	"phpunit_path": "/var/www/html/vendor/bin/phpunit",
 	"phpunit_xml_remote_path": "/var/www/html/phpunit.xml",
 	"docker_container": "workspace",
 	"phpunit_xml_local_path": ""

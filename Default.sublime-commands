@@ -25,7 +25,7 @@
         }
     },
     {
-        "caption": "Docker PHPUnit: Run tests in current file with xDebug",
+        "caption": "Docker PHPUnit: Run tests in current file with Xdebug",
         "command": "docker_php_unit",
         "args": {
             "type": "xdebug"
