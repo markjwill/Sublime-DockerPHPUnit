@@ -26,7 +26,7 @@ class DockerPhpUnitCommand(sublime_plugin.WindowCommand):
     def __init__(self, *args, **kwargs):
         super(DockerPhpUnitCommand, self).__init__(*args, **kwargs)
         self.settings         = sublime.load_settings('DockerPHPUnit.sublime-settings')
-        self.phpunit_path               = self.settings.get('phpunit_path')    
+        self.phpunit_path               = self.settings.get('phpunit_path')
         self.phpunit_xml_remote_path    = self.settings.get('phpunit_xml_remote_path')
         self.phpunit_xml_local_path     = self.settings.get('phpunit_xml_local_path')
         self.docker_container           = self.settings.get('docker_container')
@@ -39,13 +39,14 @@ class DockerPhpUnitCommand(sublime_plugin.WindowCommand):
         try:
             # The first folder needs to be the Laravel Project
             self.PROJECT_PATH = self.window.folders()[0] + "/"
-            
+
+
             if self.phpunit_xml_local_path:
                 self.CONFIG_PATH = self.PROJECT_PATH + self.phpunit_xml_local_path
             else:
                 self.CONFIG_PATH = self.PROJECT_PATH
-            
-            sublime.status_message(self.CONFIG_PATH)    
+
+            sublime.status_message(self.CONFIG_PATH)
             if os.path.isfile("%s" % os.path.join(self.CONFIG_PATH, 'phpunit.xml')) or os.path.isfile("%s" % os.path.join(self.CONFIG_PATH, 'phpunit.xml.dist')):
                 self.params = kwargs.get('params', False)
                 self.type = kwargs.get('type', False)
@@ -56,7 +57,7 @@ class DockerPhpUnitCommand(sublime_plugin.WindowCommand):
                     self.group = " --exclude-group functional_test"
                 elif self.type == "functional":
                     self.group = " --group functional_test"
-                elif self.type == "current_file":
+                elif self.type == "current_file" or self.type == "xdebug":
                     self.filename = self.file_name()
                     if not os.path.isfile(self.filename):
                         sublime.status_message("file " + self.filename + " not found")
@@ -89,10 +90,23 @@ class DockerPhpUnitCommand(sublime_plugin.WindowCommand):
             return True
 
     def build_command(self):
-        command = "docker exec " + self.docker_container + " sh -c " 
+        command = 'docker exec ' + self.docker_container + ' sh -c "'
 
-        command += '"' + self.phpunit_path + " -c " + self.phpunit_xml_remote_path + '"'  
-        	
+        if self.type == "xdebug":
+            command += 'export XDEBUG_CONFIG=\"idekey=sublime.xdebug\"; '
+
+        command += 'php '
+
+        if self.type == "xdebug":
+            command += '-d xdebug.profiler_enable=on -d xdebug.remote_port=9000 -d xdebug.remote_log=\"/var/log/xdebug.log\" -d xdebug.remote_host=10.254.254.254 -d xdebug.remote_handler=dbgp -d xdebug.remote_enable=1 -d xdebug.remote_connect_back=0 -d xdebug.remote_mode=req -d xdebug.var_display_max_depth=4 -d xdebug.default_enable=1 -d xdebug.var_display_max_data=512 -d xdebug.idekey=sublime.xdebug -d xdebug.autostart=0 -d xdebug.var_display_max_children=64 '
+
+        command += self.phpunit_path + " -c " + self.phpunit_xml_remote_path
+
+        if self.type == "current_file" or self.type == "xdebug":
+            command += " " + self.filename
+
+        command += '"'
+        print (command)
         return command;
 
     def display_results(self):

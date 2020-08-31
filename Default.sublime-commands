@@ -23,5 +23,12 @@
         "args": {
             "type": "current_file"
         }
+    },
+    {
+        "caption": "Docker PHPUnit: Run tests in current file with xDebug",
+        "command": "docker_php_unit",
+        "args": {
+            "type": "xdebug"
+        }
     }
 ]
