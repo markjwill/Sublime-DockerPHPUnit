@@ -57,7 +57,7 @@ class DockerPhpUnitCommand(sublime_plugin.WindowCommand):
                     self.group = " --exclude-group functional_test"
                 elif self.type == "functional":
                     self.group = " --group functional_test"
-                elif self.type == "current_file" or self.type == "xdebug":
+                elif self.type == "current_file" or self.type == "xdebug" or self.type == "dusk":
                     self.filename = self.file_name()
                     if not os.path.isfile(self.filename):
                         sublime.status_message("file " + self.filename + " not found")
@@ -100,10 +100,16 @@ class DockerPhpUnitCommand(sublime_plugin.WindowCommand):
         if self.type == "xdebug":
             command += '-d xdebug.profiler_enable=on -d xdebug.remote_port=9000 -d xdebug.remote_log=\"/var/log/xdebug.log\" -d xdebug.remote_host=10.254.254.254 -d xdebug.remote_handler=dbgp -d xdebug.remote_enable=1 -d xdebug.remote_connect_back=0 -d xdebug.remote_mode=req -d xdebug.var_display_max_depth=4 -d xdebug.default_enable=1 -d xdebug.var_display_max_data=512 -d xdebug.idekey=sublime.xdebug -d xdebug.autostart=0 -d xdebug.var_display_max_children=64 '
 
-        command += self.phpunit_path + " -c " + self.phpunit_xml_remote_path
+        if self.type == "dusk":
+            command += "artisan dusk --filter="
+        else:
+            command += self.phpunit_path + " -c " + self.phpunit_xml_remote_path
 
-        if self.type == "current_file" or self.type == "xdebug":
-            command += " " + self.filename
+        if self.type == "dusk":
+            name = os.path.basename(self.filename)
+            command += os.path.splitext(name)[0]
+        elif self.type == "current_file" or self.type == "xdebug":
+            command += " "+self.filename
 
         command += '"'
         print (command)
